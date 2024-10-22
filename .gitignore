@@ -1,2 +1,16 @@
 output/
 output/
+
+# Ignore output and data files
+output_*
+*.log
+*.dat
+
+# Ignore compiled object files
+*.o
+*.so
+*.dll
+
+# Ignore executables
+*.exe
+/

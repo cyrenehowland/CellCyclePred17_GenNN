@@ -196,7 +196,7 @@ void prey_initialize_properties(Cell* cell){
     cell -> custom_data["initial_volume"] = cell -> phenotype.volume.total;
     cell -> custom_data["energy"] = 25;
     cell -> phenotype.motility.is_motile = true;
-    cell -> custom_data["pred_stress"] = 0;
+//    cell -> custom_data["pred_stress"] = 0;
     cell -> custom_data["danger"] = 0;
 //    cell -> custom_data["attachment_loss_time"]= -1.0;
     
@@ -205,13 +205,13 @@ void prey_initialize_properties(Cell* cell){
     
 }
 
-void pred_initialize_properties(Cell* cell){
-    cell -> custom_data["initial_volume"] = cell -> phenotype.volume.total;
-    cell -> custom_data["energy"] = 10;
-    cell -> phenotype.motility.is_motile = true;
-    cell -> custom_data["edible"] = -1.0;
-
-}
+//void pred_initialize_properties(Cell* cell){
+//    cell -> custom_data["initial_volume"] = cell -> phenotype.volume.total;
+//    cell -> custom_data["energy"] = 10;
+//    cell -> phenotype.motility.is_motile = true;
+//    cell -> custom_data["edible"] = -1.0;
+//
+//}
 
 
 
@@ -250,7 +250,11 @@ void initialize_cell_network(Cell* cell, int input_size, int hidden_size, int ou
 
 std::vector<double> get_cell_inputs(Cell* cell) {
     
-    // Smooth out inputs:
+    // Smooth out/prepare inputs:
+    
+    // Input indicator if cell is currently attached
+    bool attached = false;
+    if (cell->state.number_of_attached_cells() > 0){attached = true;}
     
     // Parameters for Hill function for danger
 //    double half_max_danger = 10.0;  // Half-maximal concentration
@@ -268,11 +272,13 @@ std::vector<double> get_cell_inputs(Cell* cell) {
     // Apply Hill function to energy
     double hill_energy = Hill_response_function(cell->custom_data["energy"], half_max_energy, hill_pow_energy);
 //    std::cout << "Cell ID (" << cell->ID << ") has hill energy = " << hill_energy << std::endl;
-
+    
+    // Input for nutrient availible nearby
     double nutrient = cell->nearest_density_vector()[0];
 //    std::cout << "Cell ID (" << cell->ID << ") has nutrient = " << nutrient << std::endl;
-    bool day = false;
     
+    // Have input boolean for if there is any nutrient detected
+    bool day = false;
     if (nutrient > 0){day = true;}
     else {day = false;}
     
@@ -280,12 +286,12 @@ std::vector<double> get_cell_inputs(Cell* cell) {
     double initial_volume = cell -> custom_data["initial_volume"];
     double volume_multiple = cell->phenotype.volume.total / initial_volume;
     
-    
+    // Make age relative to age killed in death condtion
     double age = (cell -> custom_data["time_since_last_division"])/5000;
     
     // Reserve space for 7 inputs to avoid reallocations
     std::vector<double> inputs;
-    inputs.reserve(5);  // You know the size ahead of time
+    inputs.reserve(6);  // You know the size ahead of time
     
     // Now add the inputs
     inputs.push_back(nutrient);
@@ -293,9 +299,11 @@ std::vector<double> get_cell_inputs(Cell* cell) {
     inputs.push_back(volume_multiple);
     inputs.push_back(hill_energy);
     inputs.push_back(age);
-    
-//    inputs.push_back(cell->custom_data["danger"]);
 //    inputs.push_back(cell->custom_data["pred_stress"]);
+    inputs.push_back(attached);
+    
+    
+    
 
 //    inputs.push_back(cell -> custom_data["time_spent_attached"]);
     
@@ -371,15 +379,15 @@ void setup_tissue( void )
             
             // Initilaize cell properties:
             prey_initialize_properties(cell);
-            initialize_cell_network((cell), 5, 11, 2); // Example sizes: 3 inputs, 5 hidden neurons, 2 outputs
+            initialize_cell_network((cell), 6, 15, 2); // Example sizes: 3 inputs, 5 hidden neurons, 2 outputs
         }
     
         
-        if (cell->type == find_cell_definition("Predator")->type){
-            
-            // Initilaize cell properties:
-            pred_initialize_properties(cell);
-        }
+//        if (cell->type == find_cell_definition("Predator")->type){
+//            
+//            // Initilaize cell properties:
+//            pred_initialize_properties(cell);
+//        }
     }
 	
 	return; 
@@ -404,7 +412,7 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 void evaluate_death_conditions(Cell* pCell, Phenotype& phenotype, double dt){
     
     // Death based on starvation:
-    if( pCell->custom_data["energy"] < 15.0 )
+    if( pCell->custom_data["energy"] < 1.0 )
     {
         pCell->lyse_cell();
         return;
@@ -414,7 +422,7 @@ void evaluate_death_conditions(Cell* pCell, Phenotype& phenotype, double dt){
     // Death based on size constraint (if too small or too big, die)
     double initial_volume = pCell->custom_data["initial_volume"];
     double current_volume = pCell->phenotype.volume.total;
-    if (current_volume < initial_volume || current_volume > 20 * initial_volume)
+    if (current_volume < initial_volume || current_volume > 30 * initial_volume)
     {
         pCell->lyse_cell();
         return;
@@ -423,13 +431,49 @@ void evaluate_death_conditions(Cell* pCell, Phenotype& phenotype, double dt){
     
     // Death based on time since last division:
     if (pCell -> custom_data["time_since_last_division"] > 5000){
-//        std::cout << "Cell ID (" << pCell->ID << ") Will die now. Its been too long since last division" << std::endl;
+        //        std::cout << "Cell ID (" << pCell->ID << ") Will die now. Its been too long since last division" << std::endl;
         pCell->lyse_cell();
         return;
         
     }
     
+    // Define the probability of lysis for unattached cells
+    double lysis_probability = 0.009; // Adjust this value to tune how likely unattached cells are to lyse
+    
+    // Check if the cell is attached
+    if (pCell->state.number_of_attached_cells() == 0) // Unattached
+    {
+        // Generate a random number between 0 and 1
+        double random_number = UniformRandom();
+        
+        // If the random number is less than the lysis probability, lyse the cell
+        if (random_number < lysis_probability)
+        {
+            pCell->lyse_cell();
+        }
+    }
 }
+
+       // Additional logic for attached cells, if needed...
+   
+    
+    
+//    // Get the index for apoptosis
+//    int apoptosis_index = pCell->phenotype.death.find_death_model_index( "Apoptosis" );
+//
+//    // Check if the cell is attached
+//    if (pCell->state.number_of_attached_cells() == 0) // Unattached
+//    {
+//        // Increase death rate for unattached cells
+//        phenotype.death.rates[apoptosis_index] = 0.0005;
+//    }
+//    else // Attached
+//    {
+//        // Normal death rate for attached cells
+//        phenotype.death.rates[apoptosis_index] = 0;
+//    }
+
+
 
 
 
@@ -442,13 +486,9 @@ void prey_phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
     if (pCell->state.number_of_attached_cells() > 0){
         // If you are attached to others, label 'inedible'
         pCell -> custom_data["edible"] = false;
-        // Update time spent attached
-        pCell->custom_data["time_spent_attached"] += dt;
-        
     }
     else {
         pCell -> custom_data["edible"] = true;
-        pCell->custom_data["time_spent_attached"] = 0.0;
     }
     
 
@@ -485,12 +525,10 @@ void prey_phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
 
     
     // Interpret outputs and update custom data:
-//    pCell->custom_data["separate"] = (outputs[0] > 0.5) ? 1.0 : 0.0;
-    pCell->custom_data["separate"] = 1.0;
     pCell->custom_data["divide"] = (outputs[0] > 0.5) ? 1.0 : 0.0;
-    pCell -> phenotype.motility.migration_speed = 2*outputs[1];
-//    pCell -> cell_defaults.functions.update_migration_bias = NULL;
-//    pCell -> phenotype.motility.migration_bias = outputs[1];
+//    pCell -> phenotype.motility.migration_speed = 2*outputs[1];
+    pCell->custom_data["separate"] = (outputs[1] > 0.5) ? 1.0 : 0.0;
+    
 
     
     // Division
@@ -536,7 +574,7 @@ void prey_phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
 
     
     // Predator stress evaluation
-    prey_stress_function(pCell, phenotype, dt);
+//    prey_stress_function(pCell, phenotype, dt);
 
     // Death evaluation
     evaluate_death_conditions(pCell, phenotype, dt);
@@ -558,10 +596,8 @@ void active_prey_growth_and_metabolism(Cell* pCell, Phenotype& phenotype, double
 {
     // Access index for food
     int food_index = microenvironment.find_density_index("food");
-    
     // sample the microenvironment at the cell’s locaiton
     double food_nearby = pCell->nearest_density_vector()[food_index];
-    
     // Define the threshold and calculate food_eaten
     double threshold = 10.0;  // Example threshold
     double food_eaten;
@@ -569,7 +605,6 @@ void active_prey_growth_and_metabolism(Cell* pCell, Phenotype& phenotype, double
         food_eaten = food_nearby;  // Eat all available food if below threshold
     else
         food_eaten = 10.0;  // Eat a fixed amount otherwise
-    
     
     // Update Energy:
     // Cell gains energy equivalent to food consumption
@@ -625,7 +660,7 @@ void prey_stress_function(Cell* pCell, Phenotype& phenotype, double dt) {
     }
     // If no predators are detected, decrease the danger level
      if (!predator_nearby) {
-         pCell->custom_data["danger"] -= 0.1;
+         pCell->custom_data["danger"] -= 0.3;
      }
     
     // Ensure danger does not go negative

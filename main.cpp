@@ -86,37 +86,37 @@ using namespace PhysiCell;
 #include <cmath>  // For exp(), pow()
 
 
-//void add_random_substrate_to_voxel()
-//{
-//    int num_voxels = microenvironment.number_of_voxels();
-//    int random_voxel_index = rand() % num_voxels;
-//    
-//    int idx_food = microenvironment.find_density_index("food");
-//    
-//    // Gaussian distribution parameters
-//    double mean_x = microenvironment.mesh.voxels[random_voxel_index].center[0];
-//    double mean_y = microenvironment.mesh.voxels[random_voxel_index].center[1];
-////    double mean_z = microenvironment.mesh.voxels[random_voxel_index].center[2];
-//    double sigma = 100.0 + (rand() % 10); // Standard deviation in microns
-//    double amplitude = 200.0 + (rand() % 10); // Amplitude of the Gaussian distribution
-//    
-//    // Apply Gaussian distribution to a single randomly chosen voxel
-//    for( int n = 0; n < num_voxels; n++ )
-//    {
-//        std::vector<double> voxel_center = microenvironment.mesh.voxels[n].center;
-//        double x = voxel_center[0];
-//        double y = voxel_center[1];
-////        double z = voxel_center[2];
-//        
-//        // Calculate the Gaussian function value based on the distance from the random voxel
-////        double distance_squared = pow(x - mean_x, 2) + pow(y - mean_y, 2) + pow(z - mean_z, 2);
-//        double distance_squared = pow(x - mean_x, 2) + pow(y - mean_y, 2);
-//        double value = amplitude * exp(-distance_squared / (2 * pow(sigma, 2)));
-//        
-//        // Add Gaussian value to the existing substrate concentration
-//        microenvironment(n)[idx_food] += value;  // Correct way to access and modify substrate value
-//    }
-//}
+void add_random_substrate_to_voxel()
+{
+    int num_voxels = microenvironment.number_of_voxels();
+    int random_voxel_index = rand() % num_voxels;
+    
+    int idx_food = microenvironment.find_density_index("food");
+    
+    // Gaussian distribution parameters
+    double mean_x = microenvironment.mesh.voxels[random_voxel_index].center[0];
+    double mean_y = microenvironment.mesh.voxels[random_voxel_index].center[1];
+//    double mean_z = microenvironment.mesh.voxels[random_voxel_index].center[2];
+    double sigma = 100.0 + (rand() % 10); // Standard deviation in microns
+    double amplitude = 200.0 + (rand() % 10); // Amplitude of the Gaussian distribution
+    
+    // Apply Gaussian distribution to a single randomly chosen voxel
+    for( int n = 0; n < num_voxels; n++ )
+    {
+        std::vector<double> voxel_center = microenvironment.mesh.voxels[n].center;
+        double x = voxel_center[0];
+        double y = voxel_center[1];
+//        double z = voxel_center[2];
+        
+        // Calculate the Gaussian function value based on the distance from the random voxel
+//        double distance_squared = pow(x - mean_x, 2) + pow(y - mean_y, 2) + pow(z - mean_z, 2);
+        double distance_squared = pow(x - mean_x, 2) + pow(y - mean_y, 2);
+        double value = amplitude * exp(-distance_squared / (2 * pow(sigma, 2)));
+        
+        // Add Gaussian value to the existing substrate concentration
+        microenvironment(n)[idx_food] += value;  // Correct way to access and modify substrate value
+    }
+}
 
 //
 //void add_linear_gradient_substrate()
@@ -231,7 +231,7 @@ void toggle_sunlight_gradient(double current_time, double sunlight_on_duration, 
     if (time_in_cycle < sunlight_on_duration)
     {
         // Define the maximum concentration at the -x wall
-        double max_concentration = 1.0;  // Adjust this value as needed
+        double max_concentration = 2.0;  // Adjust this value as needed
 
         // Define the distance scale for the gradient (larger values make the gradient more gradual)
         double distance_scale = 1000.0;  // Adjust to control how quickly the gradient decreases
@@ -403,18 +403,18 @@ int main( int argc, char* argv[] )
 			// update the microenvironment
 			microenvironment.simulate_diffusion_decay( diffusion_dt );
             
-            toggle_sunlight_gradient(PhysiCell_globals.current_time, 600, 600);
+//            toggle_sunlight_gradient(PhysiCell_globals.current_time, 600, 600);
 
 			
             // Add food randomly into arena periodically
-//            if( fabs(fmod(PhysiCell_globals.current_time, 200.0)) < 1e-2 )
-//            {
+            if( fabs(fmod(PhysiCell_globals.current_time, 200.0)) < 1e-2 )
+            {
                 // Periodically add substrate to voxels
-//                add_random_substrate_to_voxel();
-                //add_linear_gradient_substrate();
+                add_random_substrate_to_voxel();
+//                add_linear_gradient_substrate();
 //                toggle_sunlight_gradient(PhysiCell_globals.current_time, 100, 200);
-//                std::cout << std::endl << "Substrate Added " << std::endl;
-//            }
+                std::cout << std::endl << "Substrate Added " << std::endl;
+            }
             
 			// run PhysiCell
 			((Cell_Container *)microenvironment.agent_container)->update_all_cells( PhysiCell_globals.current_time );

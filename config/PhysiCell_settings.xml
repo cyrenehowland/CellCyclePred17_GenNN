@@ -27,13 +27,13 @@
     </parallel>
 
     <save>
-        <folder>output</folder>
+        <folder>user_projects/CellCyclePred17_GenNN/output/30102024_dr0_003_source2</folder>
         <full_data>
-            <interval units="min">10</interval>
+            <interval units="min">60</interval>
             <enable>true</enable>
         </full_data>
         <SVG>
-            <interval units="min">10</interval>
+            <interval units="min">60</interval>
             <enable>true</enable>
             <plot_substrate enabled="false" limits="false">
                 <substrate>food</substrate>
@@ -133,7 +133,7 @@
                 </volume>
                 <mechanics>
                     <cell_cell_adhesion_strength units="micron/min">0.0</cell_cell_adhesion_strength>
-                    <cell_cell_repulsion_strength units="micron/min">10.0</cell_cell_repulsion_strength>
+                    <cell_cell_repulsion_strength units="micron/min">1.0</cell_cell_repulsion_strength>
                     <relative_maximum_adhesion_distance units="dimensionless">3</relative_maximum_adhesion_distance>
                     <cell_adhesion_affinities>
                         <cell_adhesion_affinity name="Cell">1</cell_adhesion_affinity>
@@ -143,7 +143,7 @@
                         <set_relative_equilibrium_distance enabled="false" units="dimensionless">0</set_relative_equilibrium_distance>
                         <set_absolute_equilibrium_distance enabled="false" units="micron">0</set_absolute_equilibrium_distance>
                     </options>
-                    <attachment_elastic_constant units="1/min">0.3</attachment_elastic_constant>
+                    <attachment_elastic_constant units="1/min">1.0</attachment_elastic_constant>
                     <attachment_rate units="1/min">0.0</attachment_rate>
                     <detachment_rate units="1/min">0.0</detachment_rate>
                 </mechanics>
@@ -214,15 +214,11 @@
                 <energy conserved="true" units="" description="">0.0</energy>
                 <separate conserved="false" units="" description="">0.0</separate>
                 <initial_volume conserved="false" units="" description="">0.0</initial_volume>
-                <pred_stress conserved="false" units="" description="">0.0</pred_stress>
-                <danger conserved="false" units="" description="">0.0</danger>
-                <prey_ingest_prob conserved="false" units="" description="">0.0</prey_ingest_prob>
                 <last_division_time conserved="false" units="" description="">0.0</last_division_time>
                 <time_since_last_division conserved="false" units="" description="">0.0</time_since_last_division>
-                <attachment_loss_time conserved="false" units="" description="">0.0</attachment_loss_time>
-                <time_spent_attached conserved="false" units="" description="">0.0</time_spent_attached>
                 <active_metabolic_rate conserved="false" units="" description="">0.003</active_metabolic_rate>
                 <inactive_metabolic_rate conserved="false" units="" description="">0.0015</inactive_metabolic_rate>
+                <single_death_prob conserved="false" units="" description="">0.003</single_death_prob>
             </custom_data>
         </cell_definition>
         <cell_definition name="Predator" ID="1">
@@ -349,15 +345,11 @@
                 <energy conserved="true" units="" description="">0.0</energy>
                 <separate conserved="false" units="" description="">0.0</separate>
                 <initial_volume conserved="false" units="" description="">0.0</initial_volume>
-                <pred_stress conserved="false" units="" description="">0.0</pred_stress>
-                <danger conserved="false" units="" description="">0.0</danger>
-                <prey_ingest_prob conserved="false" units="" description="">0.05</prey_ingest_prob>
                 <last_division_time conserved="false" units="" description="">0.0</last_division_time>
                 <time_since_last_division conserved="false" units="" description="">0.0</time_since_last_division>
-                <attachment_loss_time conserved="false" units="" description="">0.0</attachment_loss_time>
-                <time_spent_attached conserved="false" units="" description="">0.0</time_spent_attached>
                 <active_metabolic_rate conserved="false" units="" description="">0.0015</active_metabolic_rate>
                 <inactive_metabolic_rate conserved="false" units="" description="">0.0</inactive_metabolic_rate>
+                <single_death_prob conserved="false" units="" description="">0.001</single_death_prob>
             </custom_data>
         </cell_definition>
     </cell_definitions>

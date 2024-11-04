@@ -299,7 +299,6 @@ std::vector<double> get_cell_inputs(Cell* cell) {
     inputs.push_back(volume_multiple);
     inputs.push_back(hill_energy);
     inputs.push_back(age);
-//    inputs.push_back(cell->custom_data["pred_stress"]);
     inputs.push_back(attached);
     
     
@@ -412,7 +411,7 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 void evaluate_death_conditions(Cell* pCell, Phenotype& phenotype, double dt){
     
     // Death based on starvation:
-    if( pCell->custom_data["energy"] < 1.0 )
+    if( pCell->custom_data["energy"] < 10.0 )
     {
         pCell->lyse_cell();
         return;
@@ -437,19 +436,23 @@ void evaluate_death_conditions(Cell* pCell, Phenotype& phenotype, double dt){
         
     }
     
-    // Define the probability of lysis for unattached cells
-    double lysis_probability = 0.009; // Adjust this value to tune how likely unattached cells are to lyse
-    
-    // Check if the cell is attached
-    if (pCell->state.number_of_attached_cells() == 0) // Unattached
-    {
-        // Generate a random number between 0 and 1
-        double random_number = UniformRandom();
+    if (phenotype.death.dead == false){
         
-        // If the random number is less than the lysis probability, lyse the cell
-        if (random_number < lysis_probability)
+        double lysis_probability = pCell-> custom_data["single_death_prob"]; // Adjust this value to tune how likely unattached cells are to lyse
+        
+        // Check if the cell is attached
+        if (pCell->state.number_of_attached_cells() == 0) // Unattached
         {
-            pCell->lyse_cell();
+            // Generate a random number between 0 and 1
+            double random_number = UniformRandom();
+//                    std::cout << "Cell ID (" << pCell->ID << " ) has random number = " << random_number << std::endl;
+            
+            // If the random number is less than the lysis probability, lyse the cell
+            if (random_number < lysis_probability)
+            {
+//                std::cout << "Cell ID (" << pCell->ID << " ) will die now since " << random_number <<  "  is less than lysis_probability = " << lysis_probability <<std::endl;
+                pCell->lyse_cell();
+            }
         }
     }
 }

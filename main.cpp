@@ -231,10 +231,10 @@ void toggle_sunlight_gradient(double current_time, double sunlight_on_duration, 
     if (time_in_cycle < sunlight_on_duration)
     {
         // Define the maximum concentration at the -x wall
-        double max_concentration = 2.0;  // Adjust this value as needed
+        double max_concentration = 3.0;  // Adjust this value as needed
 
         // Define the distance scale for the gradient (larger values make the gradient more gradual)
-        double distance_scale = 1000.0;  // Adjust to control how quickly the gradient decreases
+        double distance_scale = 2000.0;  // Adjust to control how quickly the gradient decreases
 
         // Apply the gradient
         int num_voxels = microenvironment.number_of_voxels();
@@ -403,18 +403,18 @@ int main( int argc, char* argv[] )
 			// update the microenvironment
 			microenvironment.simulate_diffusion_decay( diffusion_dt );
             
-//            toggle_sunlight_gradient(PhysiCell_globals.current_time, 600, 600);
+            toggle_sunlight_gradient(PhysiCell_globals.current_time, 600, 600);
 
 			
-            // Add food randomly into arena periodically
-            if( fabs(fmod(PhysiCell_globals.current_time, 200.0)) < 1e-2 )
-            {
-                // Periodically add substrate to voxels
-                add_random_substrate_to_voxel();
-//                add_linear_gradient_substrate();
-//                toggle_sunlight_gradient(PhysiCell_globals.current_time, 100, 200);
-                std::cout << std::endl << "Substrate Added " << std::endl;
-            }
+//            // Add food randomly into arena periodically
+//            if( fabs(fmod(PhysiCell_globals.current_time, 200.0)) < 1e-2 )
+//            {
+//                // Periodically add substrate to voxels
+//                add_random_substrate_to_voxel();
+////                add_linear_gradient_substrate();
+////                toggle_sunlight_gradient(PhysiCell_globals.current_time, 100, 200);
+//                std::cout << std::endl << "Substrate Added " << std::endl;
+//            }
             
 			// run PhysiCell
 			((Cell_Container *)microenvironment.agent_container)->update_all_cells( PhysiCell_globals.current_time );
